@@ -150,6 +150,13 @@ const styles = StyleSheet.create({
   input:{
     height:30,
     flexDirection:'row',
+    borderColor:"#333",
+    borderWidth: 1,
+    borderBottomLeftRadius:5,
+    borderTopRightRadius:5,
+    borderBottomRightRadius:5,
+    borderTopLeftRadius:5,
+    
   },
   inputText:{
     flex:1,
