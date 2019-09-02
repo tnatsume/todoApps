@@ -7,25 +7,44 @@ import {
   Platform, 
   ScrollView,
   FlatList,
-  TextInput,
-  Button,
   KeyboardAvoidingView,
   AsyncStrage,
   TouchableOpacity,
 } from 'react-native';
 
+import {
+  SearchBar,
+  Input,
+  Button,
+  ListItem,
+} from 'react-native-elements';
+
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
+
+import {ifIphoneX,getStatisBarHeight, getStatusBarHeight} from 'react-native-iphone-x-helper';
 const TODO = "@todoapp.todo"
 
-const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 : StatusBar.currentHeight;
+// iPhoneX対応
+const STATUSBAR_HEIGHT = getStatusBarHeight()
 
 const TodoItem =(props) =>{
-  let textStyle = styles.todoItem
-  if(props.done === true){
-    textStyle = styles.todoItemDone
+  // let textStyle = styles.todoItem
+  // if(props.done === true){
+  //   textStyle = styles.todoItemDone
+  // }
+  let icon = null
+  if ( props.done == true){
+    icon = <Icon2 name="done" />
   }
   return (
     <TouchableOpacity onPress={props.onTapTodoItem}>
-      <Text style={textStyle}>{props.title}</Text>
+      {/* <Text style={textStyle}>{props.title}</Text> */}
+      <ListItem
+        title={props.title}
+        rightIcon={icon}
+        bottomDivider
+        />
     </TouchableOpacity>
   )
 }
@@ -95,17 +114,19 @@ export default class App extends React.Component {
     if(filterText !== ""){
       todo = todo.filter(t=>t.title.includes(filterText))
     }
+
+    const platform = Platform.os == 'ios' ? 'ios' : 'android'
+
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
-        <View style={styles.filter}>
-
-          <TextInput
-            onChangeText={(text)=>this.setState({filterText:text})}
-            value={this.state.filterText}
-            style={styles.inputText}
-            placeholder="Type filter text"
+        <SearchBar
+          platform={platform}
+          cancelButtontTitle='Cancel'
+          onChangeText = {(text) => this.setState({filterText: text})}
+          onClear={()=>this.setState({filterText:''})}
+          value={this.state.filterText}
+          placeholder='Type filter text'
           />
-        </View>
         <ScrollView style={styles.todolist}>
           <FlatList data={todo}
             extraData={this.state}
@@ -120,16 +141,22 @@ export default class App extends React.Component {
           />
         </ScrollView>
         <View style={styles.input}>
-          <TextInput
+          <Input
             onChangeText={(text) => this.setState({inputText:text})}
             value={this.state.inputText}
             style={styles.inputText}
           />
           <Button
+            icon={
+              <Icon
+                name='plus'
+                size={30}
+                color="white"
+              />
+            }
             onPress={this.onAddItem}
-            title="Add"
-            color="#841584"
-            style={styles.inputButton}
+            title=""
+            buttonStyle={styles.inputButton}
           />
         </View>
       </KeyboardAvoidingView>
@@ -138,6 +165,31 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  input:{
+    ...ifIphoneX({
+      paddingBottom:30,
+      height:80
+    },{
+      height:50,
+      }),
+      height:70,
+      flexDirection:'row',
+      paddingRight:10,
+
+  },
+  inputText:{
+    paddingLeft:10,
+    paddingRight:10,
+    flex:1,
+  },
+  inputButton:{
+    width:48,
+    height:48,
+    borderWidth:0,
+    borderColor:'transparent',
+    borderRadius:48,
+    backgroundColor:'#ff6347',
+  },
   container:{
     flex:1,
     backgroundColor:'#fff',
@@ -147,23 +199,10 @@ const styles = StyleSheet.create({
   filter:{
     height:30,
   },
-  input:{
-    height:30,
-    flexDirection:'row',
-    borderColor:"#333",
-    borderWidth: 1,
-    borderBottomLeftRadius:5,
-    borderTopRightRadius:5,
-    borderBottomRightRadius:5,
-    borderTopLeftRadius:5,
-    
-  },
   inputText:{
     flex:1,
   },
-  inputButton:{
-    width:100,
-  },
+
   todoItem:{
     fontSize:20,
     backgroundColor:"white"
